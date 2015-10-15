@@ -15,22 +15,10 @@ public class Juego {
 	private int jugador1;
 	private int jugador2;
 	
-	public ArrayList<Pieza> getPiezas(){
-		return tablero;
-	}
-	
-	public int getNroJuego(){
-		return nroJuego;
-	}
-	public int getTurno(){
-		return turno;
-	}
-	
 	public Juego() {
 		// TODO Auto-generated constructor stub
 	}
 
-	
 	public Juego(int nroJuego, int jugador1, int jugador2){
 		this.turno=COLOR_BLANCO;
 		this.nroJuego=nroJuego;
@@ -38,6 +26,59 @@ public class Juego {
 		this.jugador2=jugador2;
 	}
 
+	public void setTurno(int turno) {
+		// TODO Auto-generated method stub
+		this.turno=turno;
+	}
+
+	public void cambiarTurno(){
+		if(turno==COLOR_BLANCO){
+			turno=COLOR_NEGRO;
+		}
+		else{
+			turno=COLOR_BLANCO;
+		}
+	}
+
+	public ArrayList<Pieza> getPiezas(){
+		return tablero;
+	}
+	
+	public int getNroJuego(){
+		return nroJuego;
+	}
+	public String getStrTurno(){
+		if (turno==COLOR_BLANCO){
+			return "Blanco";
+		}
+		return "Negro";
+	}
+
+	public String getStrColumna(int columna){
+		switch (columna){
+		case 1: return "a";
+		case 2: return "b";
+		case 3: return "c";
+		case 4: return "d";
+		case 5: return "e";
+		case 6: return "f";
+		case 7: return "g";
+		case 8: return "h";
+		default: return "";
+		}
+	}
+
+	public String getStrColor(int color){
+		if (color==COLOR_BLANCO){
+			return "Blanco";
+		}
+		return "Negro";
+	}
+
+	public int getTurno(){
+		return turno;
+	}
+	
 	public void iniciarJuego(){
 		tablero = new ArrayList<Pieza>();
 		tablero.add(new Rey(COLOR_BLANCO,1,5));
@@ -121,47 +162,5 @@ public class Juego {
 		};
 		tablero.remove(pieza);
 		return r;
-	}
-	
-	public void cambiarTurno(){
-		if(turno==COLOR_BLANCO){
-			turno=COLOR_NEGRO;
-		}
-		else{
-			turno=COLOR_BLANCO;
-		}
-	}
-	
-	public String getStrTurno(){
-		if (turno==COLOR_BLANCO){
-			return "Blanco";
-		}
-		return "Negro";
-	}
-	
-	public String getStrColor(int color){
-		if (color==COLOR_BLANCO){
-			return "Blanco";
-		}
-		return "Negro";
-	}
-	
-	public String getStrColumna(int columna){
-		switch (columna){
-		case 1: return "a";
-		case 2: return "b";
-		case 3: return "c";
-		case 4: return "d";
-		case 5: return "e";
-		case 6: return "f";
-		case 7: return "g";
-		case 8: return "h";
-		default: return "";
-		}
-	}
-
-	public void setTurno(int turno) {
-		// TODO Auto-generated method stub
-		this.turno=turno;
 	}
 }

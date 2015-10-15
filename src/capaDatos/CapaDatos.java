@@ -2,6 +2,8 @@ package capaDatos;
 
 import java.util.ArrayList;
 import java.sql.*;
+
+import customException.*;
 import entidades.*;
 
 public class CapaDatos {
@@ -45,13 +47,52 @@ public class CapaDatos {
 		return 0;
 	}
 
-	public ArrayList<Pieza> cargarJuego(int nroJuego){
-		ArrayList<Pieza> piezas = new ArrayList<Pieza>();
+	public int[] cargarJugadores(int nroJuego) throws NoGameFoundException{
+		int jugadores[]= new int[2];
 		ResultSet rs=null;
 		PreparedStatement stmt=null;
 		try {
 			stmt = FactoryConexion.getInstancia().getConn().prepareStatement(
-					"select nropieza, color, columna, fila from piezas where nrojuego = ?"
+					"select jugador1, jugador2 from juego where nrojuego = ?"
+					);
+			stmt.setInt(1, nroJuego);
+			rs = stmt.executeQuery();
+			if(rs !=null){
+				if(rs.next()){
+					jugadores[0]=rs.getInt("jugador1");
+					jugadores[1]=rs.getInt("jugador2");
+				}
+				else{
+					throw new NoGameFoundException();
+				}
+				
+			}
+			return jugadores;
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		finally
+		{
+			try {
+				if(rs!=null)rs.close();
+				if(stmt!=null) stmt.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			FactoryConexion.getInstancia().releaseConn();
+		}
+		return jugadores;
+	}
+	
+	public ArrayList<Pieza> cargarJuego(int nroJuego){
+		ArrayList<Pieza> tablero = new ArrayList<Pieza>();
+		ResultSet rs=null;
+		PreparedStatement stmt=null;
+		try {
+			stmt = FactoryConexion.getInstancia().getConn().prepareStatement(
+					"select nropieza, color, columna, fila from tablero where nrojuego = ?"
 					);
 			stmt.setInt(1, nroJuego);
 			rs = stmt.executeQuery();
@@ -72,11 +113,11 @@ public class CapaDatos {
 					case 6: newpieza = new Peon(rs.getInt("color"), rs.getInt("fila"), rs.getInt("columna"));
 					break;
 					}
-					piezas.add(newpieza);
+					tablero.add(newpieza);
 				}
 				
 			}
-			return piezas;
+			return tablero;
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -92,69 +133,16 @@ public class CapaDatos {
 			}
 			FactoryConexion.getInstancia().releaseConn();
 		}
-		return piezas;
+		return tablero;
 	}
 	
-	public void actualizarTurno(int turno, int nroJuego){
-		PreparedStatement stmt=null;
-
-		try {
-			stmt = FactoryConexion.getInstancia().getConn().prepareStatement(
-					"update juego set turno = ? where nrojuego = ?");
-			stmt.setInt(1, turno);
-			stmt.setInt(2, nroJuego);
-			stmt.executeUpdate();
-						
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		finally{
-			
-			try {
-				if(stmt != null) stmt.close();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-			FactoryConexion.getInstancia().releaseConn();
-		}		
-	}
-	
-	public void eliminarJuego(int nroJuego) {
-		PreparedStatement stmt=null;
-		try {
-			stmt = 	FactoryConexion.getInstancia().getConn().prepareStatement(
-					"delete from pieza where nrojuego = ?"
-					);
-			stmt.setInt(1, nroJuego);
-			stmt.executeUpdate();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		finally
-		{
-			try {
-				if(stmt!=null) stmt.close();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			FactoryConexion.getInstancia().releaseConn();
-		}
-		
-		
-	}
-		
-	public void guardarJuego(int nroJuego, ArrayList<Pieza> piezas){
+	public void guardarJuego(int nroJuego, ArrayList<Pieza> tablero){
 		ResultSet rs=null;
 		PreparedStatement stmt=null;
-		for (Pieza i: piezas){
+		for (Pieza i: tablero){
 			try {
 				stmt = FactoryConexion.getInstancia().getConn().prepareStatement(
-						"insert into piezas (nrojuego, nropieza, color, columna, fila) values (?,?,?,?,?)",PreparedStatement.RETURN_GENERATED_KEYS
+						"insert into tablero (nrojuego, nropieza, color, columna, fila) values (?,?,?,?,?)",PreparedStatement.RETURN_GENERATED_KEYS
 						);
 				stmt.setInt(1, nroJuego);
 				stmt.setInt(2, i.getNroPieza());
@@ -180,10 +168,63 @@ public class CapaDatos {
 				
 				FactoryConexion.getInstancia().releaseConn();
 			}
-
+	
 		}
 	}
 
+	public void actualizarTurno(int turno, int nroJuego){
+		PreparedStatement stmt=null;
+	
+		try {
+			stmt = FactoryConexion.getInstancia().getConn().prepareStatement(
+					"update juego set turno = ? where nrojuego = ?");
+			stmt.setInt(1, turno);
+			stmt.setInt(2, nroJuego);
+			stmt.executeUpdate();
+						
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		finally{
+			
+			try {
+				if(stmt != null) stmt.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			FactoryConexion.getInstancia().releaseConn();
+		}		
+	}
+
+	public void eliminarJuego(int nroJuego) {
+		PreparedStatement stmt=null;
+		try {
+			stmt = 	FactoryConexion.getInstancia().getConn().prepareStatement(
+					"delete from tablero where nrojuego = ?"
+					);
+			stmt.setInt(1, nroJuego);
+			stmt.executeUpdate();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		finally
+		{
+			try {
+				if(stmt!=null) stmt.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			FactoryConexion.getInstancia().releaseConn();
+		}
+		
+		
+	}
+		
 	public int getTurno(int nroJuego) {
 		ResultSet rs=null;
 		PreparedStatement stmt=null;

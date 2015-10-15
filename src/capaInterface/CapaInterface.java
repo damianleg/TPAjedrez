@@ -23,6 +23,7 @@ import javax.swing.JSpinner;
 import javax.swing.JTextPane;
 
 import capaNegocio.CapaNegocio;
+import customException.*;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -43,6 +44,7 @@ public class CapaInterface extends JFrame {
 	private JTextField txtHaciaFila;
 	private JTextArea textArea_1;
 	private JTextArea textArea_2;
+	private JTextField txtTurno;
 	/**
 	 * Launch the application.
 	 */
@@ -132,6 +134,12 @@ public class CapaInterface extends JFrame {
 		});
 		
 		textArea_2 = new JTextArea();
+		
+		JLabel lblTurno = new JLabel("Turno");
+		
+		txtTurno = new JTextField();
+		txtTurno.setText("");
+		txtTurno.setColumns(10);
 		GroupLayout gl_contentPane = new GroupLayout(contentPane);
 		gl_contentPane.setHorizontalGroup(
 			gl_contentPane.createParallelGroup(Alignment.LEADING)
@@ -139,7 +147,7 @@ public class CapaInterface extends JFrame {
 					.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
 						.addGroup(gl_contentPane.createSequentialGroup()
 							.addContainerGap()
-							.addComponent(separator, GroupLayout.DEFAULT_SIZE, 412, Short.MAX_VALUE))
+							.addComponent(separator, GroupLayout.DEFAULT_SIZE, 422, Short.MAX_VALUE))
 						.addGroup(gl_contentPane.createSequentialGroup()
 							.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING, false)
 								.addGroup(gl_contentPane.createSequentialGroup()
@@ -159,7 +167,7 @@ public class CapaInterface extends JFrame {
 								.addComponent(btnGuardarJuego, GroupLayout.PREFERRED_SIZE, 179, GroupLayout.PREFERRED_SIZE)
 								.addComponent(txtCargarJuego, GroupLayout.PREFERRED_SIZE, 179, GroupLayout.PREFERRED_SIZE)))
 						.addGroup(gl_contentPane.createSequentialGroup()
-							.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING, false)
+							.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
 								.addGroup(gl_contentPane.createSequentialGroup()
 									.addComponent(lblDesde)
 									.addPreferredGap(ComponentPlacement.RELATED)
@@ -172,14 +180,17 @@ public class CapaInterface extends JFrame {
 									.addComponent(txtHaciaColumna, GroupLayout.PREFERRED_SIZE, 21, GroupLayout.PREFERRED_SIZE))
 								.addGroup(gl_contentPane.createSequentialGroup()
 									.addGap(10)
-									.addComponent(textArea_1)))
+									.addComponent(textArea_1, GroupLayout.PREFERRED_SIZE, 135, GroupLayout.PREFERRED_SIZE)))
 							.addPreferredGap(ComponentPlacement.RELATED)
 							.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
 								.addGroup(gl_contentPane.createSequentialGroup()
 									.addComponent(txtHaciaFila, GroupLayout.PREFERRED_SIZE, 21, GroupLayout.PREFERRED_SIZE)
 									.addPreferredGap(ComponentPlacement.RELATED)
 									.addComponent(btnMover)
-									.addPreferredGap(ComponentPlacement.RELATED, 179, Short.MAX_VALUE))
+									.addPreferredGap(ComponentPlacement.RELATED)
+									.addComponent(lblTurno)
+									.addPreferredGap(ComponentPlacement.RELATED)
+									.addComponent(txtTurno, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 								.addComponent(textArea_2, GroupLayout.PREFERRED_SIZE, 281, GroupLayout.PREFERRED_SIZE))))
 					.addContainerGap())
 		);
@@ -207,7 +218,9 @@ public class CapaInterface extends JFrame {
 						.addComponent(lblHacia)
 						.addComponent(txtHaciaColumna, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 						.addComponent(txtHaciaFila, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-						.addComponent(btnMover))
+						.addComponent(btnMover)
+						.addComponent(lblTurno)
+						.addComponent(txtTurno, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addGroup(gl_contentPane.createParallelGroup(Alignment.BASELINE)
 						.addComponent(textArea_1, GroupLayout.DEFAULT_SIZE, 156, Short.MAX_VALUE)
@@ -219,7 +232,7 @@ public class CapaInterface extends JFrame {
 	
 	public void nuevoJuego(){
 		try{
-			capaNegocio.nuevoJuego(txtDni1.getText(), txtDni2.getText());
+			txtCargarJuego.setText(capaNegocio.nuevoJuego(txtDni1.getText(), txtDni2.getText()));
 			textArea_2.setText("Juego nuevo");
 			confirmarPiezas();
 		}
@@ -228,37 +241,23 @@ public class CapaInterface extends JFrame {
 		}
 	}
 	
-	public void cargarJuego(){
+	public void cargarJuego() {
 		try{
-			capaNegocio.cargarJuego(txtCargarJuego.getText());
-			textArea_1.setText("Juego cargado");
+			int jugadores[] = capaNegocio.cargarJugadores(txtCargarJuego.getText());
+			txtDni1.setText(Integer.toString(jugadores[0]));
+			txtDni2.setText(Integer.toString(jugadores[1]));
+			textArea_2.setText(capaNegocio.cargarJuego(txtCargarJuego.getText()));
 			confirmarPiezas();
 		}
 		catch (NumberFormatException e){
 			textArea_2.setText("Numero de juego no se valido");
+		} 
+		catch (NoGameFoundException e) {
+			txtDni1.setText("");
+			txtDni2.setText("");
+			textArea_1.setText("");
+			textArea_2.setText("Juego no encontrado");
 		}	
-	}
-	
-	public void movimiento(){
-		try{
-			textArea_2.setText(capaNegocio.movimiento(txtDesdeColumna.getText(), txtDesdeFila.getText(), txtHaciaColumna.getText(), txtHaciaFila.getText()));
-			confirmarPiezas();
-		}
-		catch (NullPointerException e){
-			textArea_2.setText(e.getMessage());
-		}
-		catch (Exception e){
-			textArea_2.setText("Movimiento no valido");
-		}
-	}
-	
-	public void confirmarPiezas(){
-		try{
-			textArea_1.setText(capaNegocio.confirmarPiezas());
-		}
-		catch (NullPointerException e){
-			textArea_2.setText(e.getMessage());
-		}
 	}
 	
 	public void guardarJuego(){
@@ -267,6 +266,35 @@ public class CapaInterface extends JFrame {
 		}
 		catch (NullPointerException e){
 			textArea_2.setText(e.getMessage());
+		}
+	}
+
+	public void movimiento(){
+		try{
+			textArea_2.setText(capaNegocio.movimiento(txtDesdeColumna.getText(), txtDesdeFila.getText(), txtHaciaColumna.getText(), txtHaciaFila.getText()));
+			if(capaNegocio.juegoIniciado()){
+				confirmarPiezas();
+			}
+			else{
+				textArea_1.setText("");
+			}
+		}
+		catch (NullPointerException e){
+			textArea_2.setText(e.getMessage());
+		}
+		catch (NumberFormatException e){
+			textArea_2.setText("Movimiento no valido");
+		}
+	}
+	
+	public void confirmarPiezas(){
+		try{
+			textArea_1.setText(capaNegocio.confirmarPiezas());
+			txtTurno.setText(capaNegocio.getTurno());
+		}
+		catch (NullPointerException e){
+			textArea_2.setText(e.getMessage());
+			txtTurno.setText("");
 		}
 	}
 }
