@@ -40,6 +40,7 @@ public class CapaNegocio {
 	
 	public String cargarJuego(String nroJuego){
 		juego = new Juego();
+		juego.setNroJuego(Integer.parseInt(nroJuego));
 		juego.setTurno(capaDatos.getTurno(Integer.parseInt(nroJuego)));
 		juego.cargarJuego(capaDatos.cargarJuego(Integer.parseInt(nroJuego)));
 		return "Juego cargado; Turno "+juego.getStrTurno();

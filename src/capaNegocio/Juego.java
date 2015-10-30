@@ -47,6 +47,11 @@ public class Juego {
 	public int getNroJuego(){
 		return nroJuego;
 	}
+	
+	public void setNroJuego(int nroJuego){
+		this.nroJuego=nroJuego;
+	}
+	
 	public String getStrTurno(){
 		if (turno==COLOR_BLANCO){
 			return "Blanco";
